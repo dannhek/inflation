@@ -8,7 +8,6 @@ for (i in c('blsAPI','zoo','ggplot2','data.table','plyr','keyring','here')){
 `%ni%` <- Negate(`%in%`)
 setwd(here('inflation'))
 
-
 ####Get the Data using the BLS API####
 #The BLS API can only retrieve 10 years at a time, so we need to loop
 #through the decades to get it all. 
@@ -70,7 +69,6 @@ plot1 <- ggplot(data=p1df,aes(x=year,y=rate_increase,colour=seriesID)) +
       geom_line() +
       scale_color_brewer(palette="Set1") +
       labs(title="Core and Health Services Inflation, 1960-2015",
-           subtitle="Figure 1",
            x="Year",
            y="Year-over-year Percent Change",
            caption="Source: Bureau of Labor Statistics\nPrice Levels taken as of January",

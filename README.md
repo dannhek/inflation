@@ -23,7 +23,7 @@ There are three notable exceptions to this:
 ## Using this code
 If you would like to use these images or fork this repo, please, go right ahead. I just ask that you cite me.  
 
-__Suggested Citation__: Hekman, D. (2019). _Medical Inflation In Context_. [github repository] https://github.com/dannhek/inflation (1065ab4d). \[Date you Downloaded this\]
+__Suggested Citation__: Hekman, D. J. (2019). _Medical Inflation In Context_. (github repository) https://github.com/dannhek/inflation.git (SHA: \[Commit SHA you used\]). \[date you acessed this\].
 
 ##### Using Keyring to account for your password  
 If you want to fork this repo, read this.   
@@ -31,7 +31,8 @@ The BLS API has limits on how much data you can pull per day ([see website](http
 ```r
 library(keyring)
 key_set('blsAPI')
-# Enter 995f4e779f204473aa565256e8afe73e into prompt
+# Enter your key into prompt
+# BLS documentation uses 995f4e779f204473aa565256e8afe73e as an example key, so I will too
 ```  
 This will allow you to replace this example
 ```r
