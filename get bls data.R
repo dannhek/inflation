@@ -68,7 +68,7 @@ p1df  <- subset(rbind(med.df,cor.df),rate_increase!=0,TRUE)
 plot1 <- ggplot(data=p1df,aes(x=year,y=rate_increase,colour=seriesID)) + 
       geom_line() +
       scale_color_brewer(palette="Set1") +
-      labs(title="Core and Health Services Inflation, 1960-2015",
+      labs(title="Core and Health Services Inflation, 1960-2019",
            x="Year",
            y="Year-over-year Percent Change",
            caption="Source: Bureau of Labor Statistics\nPrice Levels taken as of January",
