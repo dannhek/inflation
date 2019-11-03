@@ -14,7 +14,7 @@ for (i in c('blsAPI','zoo','ggplot2','data.table','plyr')){
 
 if (file.exists("fulldf.RDS")) {loadRDS("fulldf.RDS")}
 if (!exists('full.df')) {
-    for(year in c(seq(from=1960, to=2015, by=10))) {
+    for(year in c(seq(from=1960, to=2019, by=1))) {
          payload=list(
               'seriesid'=c('CUUR0000SA0L1E','CUUR0000SAM'),
               'startyear'=year,
@@ -46,7 +46,8 @@ med.df <- med.df[!is.na(med.df$rate_increase)]
 cor.df <- cor.df[!is.na(cor.df$rate_increase)]
 
 ####Graph 1: Colored Medical vs. Core Inflation Over Time
-plot1 <- ggplot(data=rbind(med.df,cor.df),aes(x=year,y=rate_increase,colour=seriesID)) + 
+p1df  <- subset(rbind(med.df,cor.df),rate_increase!=0,TRUE)
+plot1 <- ggplot(data=p1df,aes(x=year,y=rate_increase,colour=seriesID)) + 
       geom_line() +
       scale_color_brewer(palette="Set1") +
       labs(title="Core and Health Services Inflation, 1960-2015",
@@ -55,7 +56,9 @@ plot1 <- ggplot(data=rbind(med.df,cor.df),aes(x=year,y=rate_increase,colour=seri
            y="Year-over-year Percent Change",
            caption="Source: Bureau of Labor Statistics",
            colour='Inflation Subset') +
-      scale_x_continuous(breaks=c(seq(from=1960,to=2015,by=5)))
+      scale_x_continuous(breaks=c(seq(from=1960,to=2020,by=5)))
+
+plot1
 
 ####Graph 2: Ratio over time with guardrails
 ######Renaming DFs and joining tables to get ratio of increases
@@ -73,15 +76,16 @@ hlines <- list('avg' = mean(byyear.df$med_cor_ratio),
 
                                            
 ######GGPlot
-plot2 <- ggplot(data=byyear.df, aes(x=year,y=med_cor_ratio,linetype=lt)) +
+p2df  <- subset(byyear.df,!is.nan(med_cor_ratio) & med_cor_ratio != 0 & med_cor_ratio != Inf,c('year','lt','med_cor_ratio'))
+plot2 <- ggplot(data=p2df, aes(x=year,y=med_cor_ratio,linetype=lt)) +
     geom_line(color="black",show.legend=TRUE) +
     geom_hline(data=hlines$df,aes(yintercept=yint,linetype=lt),colour="darkred",alpha=0.5,show.legend=TRUE) +
     geom_hline(data=hlines$df,aes(yintercept=yint,linetype=lt),colour="darkred",alpha=0.5,show.legend=TRUE) +
-    scale_x_continuous(breaks=c(seq(from=1960,to=2015,by=5))) +
+    scale_x_continuous(breaks=c(seq(from=1960,to=2020,by=5))) +
     guides(linetype = guide_legend(reverse = TRUE,title=NULL)) +
     theme(legend.position = "bottom") +
     scale_linetype_manual(values=c(3,1)) + 
-    labs(title="Ratio between Medical and Core Inflation, 1960-2015",
+    labs(title="Ratio between Medical and Core Inflation, 1960-2019",
        subtitle="Figure 2",
        x="Year (Price Level as of December)",
        y="Ratio of Year-over-year Percent Change",
