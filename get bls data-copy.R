@@ -71,9 +71,9 @@ plot1 <- ggplot(data=p1df,aes(x=year,y=rate_increase,colour=seriesID)) +
       scale_color_brewer(palette="Set1") +
       labs(title="Core and Health Services Inflation, 1960-2015",
            subtitle="Figure 1",
-           x="Year (Price Level as of December)",
+           x="Year",
            y="Year-over-year Percent Change",
-           caption="Source: Bureau of Labor Statistics",
+           caption="Source: Bureau of Labor Statistics\nPrice Levels taken as of December",
            colour='Inflation Subset') +
       scale_x_continuous(breaks=c(seq(from=1960,to=2020,by=5)))
 
@@ -86,8 +86,8 @@ names(cor.df) <- c("seriesID","year","cor_value","cor_rate_increase")
 byyear.df <- join(med.df,cor.df,by="year")
 byyear.df$med_cor_ratio <- byyear.df$med_rate_increase/byyear.df$cor_rate_increase
 ######Setting "Normal" channels
-hlines <- list('avg' = mean(byyear.df$med_cor_ratio),
-               'sdv' = sd(byyear.df$med_cor_ratio))
+hlines <- list('avg' = mean(byyear.df$med_cor_ratio,na.rm=T),
+               'sdv' = sd(byyear.df$med_cor_ratio,na.rm = T))
           hlines$df <- data.frame(yint = c(hlines$avg + 1.5*hlines$sd, 
                                            hlines$avg - 1.5*hlines$sd),
                                   lt="1.5 Standard Deviations")
@@ -95,7 +95,7 @@ hlines <- list('avg' = mean(byyear.df$med_cor_ratio),
 
                                            
 ######GGPlot
-p2df  <- subset(byyear.df,!is.nan(med_cor_ratio) & med_cor_ratio != 0 & med_cor_ratio != Inf,c('year','lt','med_cor_ratio'))
+p2df  <- subset(byyear.df,TRUE,names(byyear.df) %ni% c('seriesID'))
 plot2 <- ggplot(data=p2df, aes(x=year,y=med_cor_ratio,linetype=lt)) +
     geom_line(color="black",show.legend=TRUE) +
     geom_hline(data=hlines$df,aes(yintercept=yint,linetype=lt),colour="darkred",alpha=0.5,show.legend=TRUE) +
@@ -105,12 +105,11 @@ plot2 <- ggplot(data=p2df, aes(x=year,y=med_cor_ratio,linetype=lt)) +
     theme(legend.position = "bottom") +
     scale_linetype_manual(values=c(3,1)) + 
     labs(title="Ratio between Medical and Core Inflation, 1960-2019",
-       subtitle="Figure 2",
-       x="Year (Price Level as of December)",
+       x="Year",
        y="Ratio of Year-over-year Percent Change",
-       caption="Source: Bureau of Labor Statistics") 
+       caption="Source: Bureau of Labor Statistics\nPrice Levels taken as of December") 
 plot2
 
 ####Save off Images####
-jpeg("Inflation_Figure1.jpg") ; plot1 ; dev.off()
-jpeg("Inflation_FIgure2.jpg") ; plot2 ; dev.off()
+png("Inflation_Figure1.png", width=6, height=4, units = 'in', res = 265) ; plot1 ; dev.off()
+png("Inflation_Figure2.png", width=6, height=4, units = 'in', res = 265) ; plot2 ; dev.off()
