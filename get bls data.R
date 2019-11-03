@@ -15,7 +15,7 @@ setwd(here('inflation'))
 #Series 1: 'CUUR0000SA0L1E' - Core CPI
 #Series 2: 'CUUR0000SAM' - Medical CPI
 
-if (file.exists("fulldf.RDS")) {loadRDS("fulldf.RDS")}
+if (file.exists("fulldf.RDS")) {full.df <- readRDS("fulldf.RDS")}
 if (!exists('full.df')) {
     for(year in c(seq(from=1960, to=2019, by=10))) {
          payload=list(
@@ -38,24 +38,24 @@ full.df$year  <- as.numeric(full.df$year)
 full.df$seriesID <- as.factor(full.df$seriesID)
 levels(full.df$seriesID) <- c("Core CPI","Medical CPI")
 ######Sorting DFs and getting year-over-year rate increases
-# med.df <- subset(full.df,seriesID=='Medical CPI' & periodName=='December',c('seriesID','year','value'))
+# med.df <- subset(full.df,seriesID=='Medical CPI' & periodName=='January',c('seriesID','year','value'))
 med.df <- as.data.frame(
 	full.df %>%
-		filter(seriesID=='Medical CPI' & periodName=='December') %>%
+		filter(seriesID=='Medical CPI' & periodName=='January') %>%
 		arrange(year) %>%
 		mutate(rate_increase = 100*((value - lag(value,1)) / lag(value,1))) %>%
 		select(seriesID,year,value,rate_increase)
 )
 cor.df <- as.data.frame(
 	full.df %>%
-		filter(seriesID=='Core CPI' & periodName=='December') %>%
+		filter(seriesID=='Core CPI' & periodName=='January') %>%
 		arrange(year) %>%
 		mutate(rate_increase = 100*(value - lag(value,1)) / lag(value,1)) %>%
 		select(seriesID,year,value,rate_increase)
 )
 
 
-# cor.df <- subset(full.df,seriesID=='Core CPI' & periodName=='December',c('seriesID','year','value')) 
+# cor.df <- subset(full.df,seriesID=='Core CPI' & periodName=='January',c('seriesID','year','value')) 
 # 
 # med.df <- med.df[order(med.df$year),]
 # cor.df <- cor.df[order(cor.df$year),]
@@ -73,9 +73,10 @@ plot1 <- ggplot(data=p1df,aes(x=year,y=rate_increase,colour=seriesID)) +
            subtitle="Figure 1",
            x="Year",
            y="Year-over-year Percent Change",
-           caption="Source: Bureau of Labor Statistics\nPrice Levels taken as of December",
+           caption="Source: Bureau of Labor Statistics\nPrice Levels taken as of January",
            colour='Inflation Subset') +
-      scale_x_continuous(breaks=c(seq(from=1960,to=2020,by=5)))
+      scale_x_continuous(breaks=c(seq(from=1960,to=2020,by=5))) +
+	  theme(legend.position = 'bottom', legend.title =element_blank())
 
 plot1
 
@@ -107,7 +108,7 @@ plot2 <- ggplot(data=p2df, aes(x=year,y=med_cor_ratio,linetype=lt)) +
     labs(title="Ratio between Medical and Core Inflation, 1960-2019",
        x="Year",
        y="Ratio of Year-over-year Percent Change",
-       caption="Source: Bureau of Labor Statistics\nPrice Levels taken as of December") 
+       caption="Source: Bureau of Labor Statistics\nPrice Levels taken as of January") 
 plot2
 
 ####Save off Images####
