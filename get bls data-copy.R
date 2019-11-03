@@ -1,10 +1,13 @@
 ##Comparing Core inflation to medical inflation
 
 ####Loading Needed Libraries####
-for (i in c('blsAPI','zoo','ggplot2','data.table','plyr')){
+for (i in c('blsAPI','zoo','ggplot2','data.table','plyr','keyring','here')){
   if( !is.element(i, .packages(all.available = TRUE)) ) {
     install.packages(i) }
   library(i,character.only = TRUE)}
+`%ni%` <- Negate(`%in%`)
+setwd(here('inflation'))
+
 
 ####Get the Data using the BLS API####
 #The BLS API can only retrieve 10 years at a time, so we need to loop
@@ -14,11 +17,12 @@ for (i in c('blsAPI','zoo','ggplot2','data.table','plyr')){
 
 if (file.exists("fulldf.RDS")) {loadRDS("fulldf.RDS")}
 if (!exists('full.df')) {
-    for(year in c(seq(from=1960, to=2019, by=1))) {
+    for(year in c(seq(from=1960, to=2019, by=10))) {
          payload=list(
               'seriesid'=c('CUUR0000SA0L1E','CUUR0000SAM'),
               'startyear'=year,
-              'endyear'=min(2015,year+9))
+              'endyear'=min(2020,year+9)
+              ,'registrationKey' = key_get('blsAPI'))
          if(exists('full.df')) {
               full.df <- rbind(full.df,blsAPI(payload,1,TRUE))
          }
@@ -33,17 +37,32 @@ full.df$value <- as.numeric(full.df$value)
 full.df$year  <- as.numeric(full.df$year)
 full.df$seriesID <- as.factor(full.df$seriesID)
 levels(full.df$seriesID) <- c("Core CPI","Medical CPI")
-######Splitting DFs and getting year-by-year
-med.df <- subset(full.df,seriesID=='Medical CPI' & periodName=='December',c('seriesID','year','value'))
-cor.df <- subset(full.df,seriesID=='Core CPI' & periodName=='December',c('seriesID','year','value')) 
 ######Sorting DFs and getting year-over-year rate increases
-setDT(med.df) ; setDT(cor.df)
-med.df <- med.df[order(med.df$year)]
-cor.df <- cor.df[order(cor.df$year)]
-med.df$rate_increase <- 100*(med.df$value/shift(med.df$value,1)-1)
-cor.df$rate_increase <- 100*(cor.df$value/shift(cor.df$value,1)-1)
-med.df <- med.df[!is.na(med.df$rate_increase)]
-cor.df <- cor.df[!is.na(cor.df$rate_increase)]
+# med.df <- subset(full.df,seriesID=='Medical CPI' & periodName=='December',c('seriesID','year','value'))
+med.df <- as.data.frame(
+	full.df %>%
+		filter(seriesID=='Medical CPI' & periodName=='December') %>%
+		arrange(year) %>%
+		mutate(rate_increase = 100*((value - lag(value,1)) / lag(value,1))) %>%
+		select(seriesID,year,value,rate_increase)
+)
+cor.df <- as.data.frame(
+	full.df %>%
+		filter(seriesID=='Core CPI' & periodName=='December') %>%
+		arrange(year) %>%
+		mutate(rate_increase = 100*(value - lag(value,1)) / lag(value,1)) %>%
+		select(seriesID,year,value,rate_increase)
+)
+
+
+# cor.df <- subset(full.df,seriesID=='Core CPI' & periodName=='December',c('seriesID','year','value')) 
+# 
+# med.df <- med.df[order(med.df$year),]
+# cor.df <- cor.df[order(cor.df$year),]
+# med.df$rate_increase <- 100*(med.df$value/shift(med.df$value,1)-1)
+# cor.df$rate_increase <- 100*(cor.df$value/shift(cor.df$value,1)-1)
+# med.df <- med.df[!is.na(med.df$rate_increase),]
+# cor.df <- cor.df[!is.na(cor.df$rate_increase),]
 
 ####Graph 1: Colored Medical vs. Core Inflation Over Time
 p1df  <- subset(rbind(med.df,cor.df),rate_increase!=0,TRUE)
