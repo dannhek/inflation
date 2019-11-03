@@ -23,7 +23,7 @@ There are three notable exceptions to this:
 ## Using this code
 If you would like to use these images or fork this repo, please, go right ahead. I just ask that you cite me.  
 
-__Suggested Citation__: Hekman, D. (2019). _Medical Inflation In Context_. [github repository] [https://github.com/dannhek/inflation] (05ce7be2). \[Date you Downloaded this\]
+__Suggested Citation__: Hekman, D. (2019). _Medical Inflation In Context_. [github repository] https://github.com/dannhek/inflation (7a6e54cb). \[Date you Downloaded this\]
 
 ##### Using Keyring to account for your password  
 If you want to fork this repo, read this.   
